@@ -1,0 +1,41 @@
+#!/usr/bin/perl 
+
+# Checking for privileges
+my $login = (getpwuid $>);
+if ($login != 'root') {
+    print "[!] You must run this script with root privileges!\n";
+    exit 3;
+}
+
+# Checking for vhost file existence
+$file = @ARGV[0];
+unless(-e "/etc/httpd/conf/sites-available/$file") {
+    print "File doesn't exist!\n";
+    exit 1;
+}
+
+# Checking if already enabled
+if(-e "/etc/httpd/conf/sites-enabled/$file") {
+    print "[!] Site already enabled. Exiting...\n";
+    exit 2;
+}
+
+# Linking the vhost
+system('ln -s "/etc/httpd/conf/sites-available/' . $file . '" "/etc/httpd/conf/sites-enabled/' . $file . '"');
+print "[*] Linked the site $file. \n";
+
+# Checking for errors
+my $check = system('apachectl -f "/etc/httpd/conf/httpd.conf" -t 2>/dev/null');
+
+unless($check == 0) {
+    print "[!] Syntax check failed!\n";
+    print "[!] Please run 'apachectl -f /etc/httpd/conf/httpd.conf -t' and investigate.\n";
+    print "[!] Removing the link and exiting...\n";
+    system('rm /etc/httpd/conf/sites-enabled/' . $file);
+    exit 3
+}
+print "[*] Syntax check passed. Reloading your configuration.\n";
+print `systemctl restart httpd`;
+
+
+print "[*] Done. Have fun!\n";
