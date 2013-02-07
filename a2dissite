@@ -1,9 +1,14 @@
 #!/usr/bin/perl 
 
 $file = @ARGV[0];
+if($file == "") {
+    print "[!] Usage: a2dissite <vhost-name>\n";
+    exit 1;
+}
+
 unless(-e "/etc/httpd/conf/sites-enabled/$file") {
     print "[!] File already disabled!\n";
-    exit 1;
+    exit 2;
 }
 
 my $login = (getpwuid $>);

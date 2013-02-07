@@ -9,15 +9,19 @@ if ($login != 'root') {
 
 # Checking for vhost file existence
 $file = @ARGV[0];
-unless(-e "/etc/httpd/conf/sites-available/$file") {
-    print "File doesn't exist!\n";
+if($file == "") {
+    print "[!] Usage: a2ensite <vhost-name>\n";
     exit 1;
+}
+unless(-e "/etc/httpd/conf/sites-available/$file") {
+    print "[!] File doesn't exist!\n";
+    exit 2;
 }
 
 # Checking if already enabled
 if(-e "/etc/httpd/conf/sites-enabled/$file") {
     print "[!] Site already enabled. Exiting...\n";
-    exit 2;
+    exit 3;
 }
 
 # Linking the vhost
@@ -32,7 +36,7 @@ unless($check == 0) {
     print "[!] Please run 'apachectl -f /etc/httpd/conf/httpd.conf -t' and investigate.\n";
     print "[!] Removing the link and exiting...\n";
     system('rm /etc/httpd/conf/sites-enabled/' . $file);
-    exit 3
+    exit 4;
 }
 print "[*] Syntax check passed. Reloading your configuration.\n";
 print `systemctl restart httpd`;
