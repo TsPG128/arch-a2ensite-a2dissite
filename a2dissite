@@ -1,7 +1,7 @@
 #!/usr/bin/perl 
 
 $file = @ARGV[0];
-if($file == "") {
+if($file eq "") {
     print "[!] Usage: a2dissite <vhost-name>\n";
     exit 1;
 }
